@@ -365,7 +365,7 @@ private object LevelFactory {
     fun create(count: Int): List<Level> {
         val result = ArrayList<Level>(count)
         for (level in 0 until count) {
-            val cars = base()
+            val cars = base(level % 3)
             val random = Random(8173 + level * 7919)
             val wanted = 12 + level * 2
             var done = 0
@@ -373,13 +373,13 @@ private object LevelFactory {
             while (done < wanted && attempts < wanted * 80) {
                 attempts++
                 val car = cars[random.nextInt(cars.size)]
+                if (car.target) continue
                 val direction = if (random.nextBoolean()) 1 else -1
                 val nx = car.x + if (car.horizontal) direction else 0
                 val ny = car.y + if (!car.horizontal) direction else 0
                 if (nx < 0 || ny < 0 ||
                     nx + (if (car.horizontal) car.length else 1) > 6 ||
                     ny + (if (car.horizontal) 1 else car.length) > 6) continue
-                if (car.target && nx > 4) continue
                 val blocked = cars.any { other ->
                     if (other === car) false else {
                         val oxEnd = other.x + if (other.horizontal) other.length else 1
@@ -398,14 +398,15 @@ private object LevelFactory {
         return result
     }
 
-    private fun base(): MutableList<Car> = mutableListOf(
-        Car("R", 4, 2, 2, true, palette[0], true),
+    private fun base(targetStart: Int): MutableList<Car> = mutableListOf(
+        Car("R", targetStart, 2, 2, true, palette[0], true),
         Car("A", 0, 0, 2, false, palette[1]),
         Car("B", 1, 0, 3, false, palette[2]),
         Car("C", 2, 0, 2, false, palette[3]),
         Car("D", 3, 0, 2, false, palette[4]),
         Car("E", 0, 3, 2, true, palette[5]),
         Car("F", 2, 3, 2, true, palette[6]),
-        Car("G", 4, 3, 2, false, palette[7])
+        Car("G", 4, 3, 2, false, palette[7]),
+        Car("H", 4, 1, 2, false, 0xFFB0BEC5.toInt())
     )
 }
